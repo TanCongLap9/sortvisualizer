@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <? const load = (file) => HtmlLib.load(HtmlService, file); ?>
+  <title>Sort Visualizer - API</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="icon" href="https://sortvisualizer.com/static/images/favicon.ico">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jura:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Electrolize&display=swap" rel="stylesheet">
+  <?!= load("sort_base.css") ?>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <noscript>JavaScript is required for this website. Please allow JavaScript and refresh the page.</noscript>
+
+  <?!= load("sort_index.css") ?>
+  <?!= load("sort_api.css") ?>
+  <link rel='stylesheet' href='//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack-subset.css'>
+  <script>
+    function changeCodeTo() {} // Empty function for compatibility
+  </script>
+</head>
+
+<body>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <?!= load("sort_base.js") ?>
+  <?!= load("sort_sidebar.html") ?>
+
+  <div class="topnav">
+    <button class="sidenav-btn topnav-element ripple open" id="sidenav-menu"><i class="material-icons icon">menu</i></button>
+    <a href="https://sortvisualizer.com" class="topnav-element">SORT VISUALIZER</a>
+  </div>
+  <?
+    function docFunction(signature, description, returnType, returnDesc, ...parameters) {
+      var firstParam = true;
+  ?>
+      <li>
+        <code><?!= signature ?></code><br><br>
+        <?!= description ?><br><br>
+  <?    for (let [name, type] of parameters) { ?>
+          <div style="display: flex; align-items: center;">
+  <?      if (firstParam) {                    ?>
+            <span style="margin-right: auto;">Parameters:</span>
+  <?        firstParam = false;
+          }                                    ?>
+            <span style="margin-left: auto;"><code><?!= name ?> : <i><?!= type ?></i></code></span>
+          </div>
+  <?    }                                       ?>
+        <br>
+        <div style="display: flex; align-items: center;">
+          <span style="margin-right: auto;">Returns:</span>
+          <span style="margin-left: auto;"><code><?!= returnType ?> : <i><?!= returnDesc ?></i></code></span>
+        </div>
+      </li><br><br>
+
+      <span><?= description ?></span>
+  <?
+    }
+  ?>
+  <div id="cover">
+    <div id="api-description-box">
+      <h2 style="font-family: 'Electrolize', Courier, monospace;">API Documentation</h2>
+      <div class="description-content">
+        <p>
+          In the <a href="https://sortvisualizer.com/customsort" target="_blank">Custom Sort</a> page, it's possible to implement a custom sort algorithm and visualize it using the following APIs.
+        </p><br>
+        <p class="api-subtitle">REQUIREMENTS</p>
+        <p data-aos="fade-left">
+          <ul>
+            <li>The code must be written using the JavaScript programming language and will get injected and executed in your browser.</li><br>
+            <li>
+              The main function must be <i>asyncronous</i> and it must accept one positional argument, representing an <code>Array of DOM element objects</code>.<br>
+              It must sort the array in-place and return <code>undefined</code>.<br>
+              If your function needs more parameters, create another function and use the main one as a wrapper to start the algorithm.
+            </li><br>
+            <li>The code mustn't use any kind of imports from external modules.</li><br>
+            <li>The code can contain multiple functions and classes declarations.</li><br>
+            <li>You must specify the algorithm's entry point (the main function) in the apposite text field.</li>
+          </ul><br>
+        </p>
+        <p class="api-subtitle">VISUALIZATION FUNCTIONS</p>
+        <p>
+          You can use the following functions to visualize the sorting algorithm. Asyncronous functions must be called using the <code>await</code> keyword.<br><br>
+          Note: <u>Underlined functions or parameters</u> aren't compatible with the ones in the official Sort Visualizer version. Using those in the official one does not work (or for worse, may cause errors if functions are not declared for that version).
+          <ul>
+            <li>
+              <code>getValue(element)</code><br><br>
+              Returns the numerical value associated with the <code>DOM object</code>, given its index or the object.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>element : <i>Number or DOM element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code>Number : <i>Value of the DOM element</i></code></span>
+              </div>
+            </li><br><br>
+            <li>
+              <code><u>setValue(element, value, [color], [...others])</u></code><br><br>
+              Sets the numerical value associated with the <code>DOM object</code>, given its index or the object.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>element : <i>Number or DOM element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>value : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>color : <i>RED/GREEN/BLUE</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>...others : <i>as many [index: Number, color: RED/GREEN/BLUE] as you want</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>undefined</i></code></span>
+              </div>
+            </li><br><br>
+            <li>
+              <code>isSorted(elements)</code><br><br>
+              Checks if an array is sorted. The <code>elements</code> is usually the variable <code>elements</code>, which refers to the current array (the bar chart).<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>elements : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>Boolean</i></code></span>
+              </div>
+            </li><br><br>
+            <li>
+              <code><i>[await]</i> updateBox(elements, [index1], [index2], [index3], <u>[...others]</u>)</code><br><br>
+              Updates the visualization of the algorithm. Temporarily changes the color of the <code>DOM elements</code> to red, green and blue respectively given their indexes and plays sounds if any index is specified.
+              Call this function after every update to the elements array.<br><br>
+              The <code>await</code> notation is provided for compatibility with the official version of Sort Visualizer.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>elements : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>index1 : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>index2 : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>index3 : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>...others : <i>as many [index: Number, color: RED/GREEN/BLUE, sound: Boolean] as you want</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>undefined</i></code></span>
+              </div>
+            </li><br><br>
+            <li>
+              <code><i>[await]</i> swap(index1, index2, [delay], <u>[iColor]</u>, <u>[jColor]</u>, <u>[...others]</u>)</code><br><br>
+              Swaps two <code>DOM elements</code> given their indices, with visualization. No need to call <code>await updateBox</code> after.<br><br>
+              The <code>await</code> notation is provided for compatibility with the official version of Sort Visualizer.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>index1 : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>index2 : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>delay : <i>Number</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>iColor : <i>RED/GREEN/BLUE</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>jColor : <i>RED/GREEN/BLUE</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>others : <i>as many [index: Number, color: RED/GREEN/BLUE] as you want</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>undefined</i></code></span>
+              </div>
+            </li><br><br>
+          </ul><br>
+        </p>
+        <p class="api-subtitle">COMPARISON FUNCTIONS</p>
+        <p>
+          Using these functions to compare values of the array counts comparisons in sort info, and optionally applies color highlighting.
+          <ul>
+            <li>
+              <code><u>compare(i1, i2, [playSound = false], [elementsArray = elements], [...highlights])</u></code><br><br>
+              Converts i1 and i2 to elements and then compare their values, optionally with sound and highlighting.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>i1 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>i2 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>playSound : <i>Boolean</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>elementsArray : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>highlights : <i>Array of [index, color] or [start, end, color], or null</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>-1, 0 or 1</i></code></span>
+              </div>
+            </li>
+            <li>
+              <code><u>lt(i1, i2, [playSound = false], [elementsArray = elements], [...highlights])</u></code><br><br>
+              Like compare but returns true when the resolved value of i1 is less than the resolved value of i2.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>i1 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>i2 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>playSound : <i>Boolean</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>elementsArray : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>highlights : <i>Array of [index, color] or [start, end, color], or null</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>Boolean</i></code></span>
+              </div>
+            </li>
+            <li>
+              <code><u>lt(i1, i2, [playSound = false], [elementsArray = elements], [...highlights])</u></code><br><br>
+              Like compare but returns true when the resolved value of i1 is less than the resolved value of i2.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>i1 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>i2 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>playSound : <i>Boolean</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>elementsArray : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>highlights : <i>Array of [index, color] or [start, end, color], or null</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>Boolean</i></code></span>
+              </div>
+            </li>
+            <li>
+              <code><u>lt(i1, i2, [playSound = false], [elementsArray = elements], [...highlights])</u></code><br><br>
+              Like compare but returns true when the resolved value of i1 is less than the resolved value of i2.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>i1 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>i2 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>playSound : <i>Boolean</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>elementsArray : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>highlights : <i>Array of [index, color] or [start, end, color], or null</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>Boolean</i></code></span>
+              </div>
+            </li>
+            <li>
+              <code><u>lt(i1, i2, [playSound = false], [elementsArray = elements], [...highlights])</u></code><br><br>
+              Like compare but returns true when the resolved value of i1 is less than the resolved value of i2.<br><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Parameters:</span>
+                <span style="margin-left: auto;"><code>i1 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>i2 : <i>Number or DOM Element</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>playSound : <i>Boolean</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>elementsArray : <i>Array of DOM elements</i></code></span>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-left: auto;"><code>highlights : <i>Array of [index, color] or [start, end, color], or null</i></code></span>
+              </div><br>
+              <div style="display: flex; align-items: center;">
+                <span style="margin-right: auto;">Returns:</span>
+                <span style="margin-left: auto;"><code><i>Boolean</i></code></span>
+              </div>
+            </li>
+          </ul>
+        </p>
+        <p class="api-subtitle">VISUALIZATION FUNCTIONS</p>
+        <p class="api-subtitle">LOW-LEVEL FUNCTIONS</p>
+        <p>
+          These functions are used to control colors and play sounds.<br><br>
+          Normally you would want to have these functions automatically executed in higher-level functions like swap, setValue, etc.
+          <ul>
+            <? "" ?>
+            <li></li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  </div>
+  <?!= load("sort_footer.html") ?>
+</body>
+</html>

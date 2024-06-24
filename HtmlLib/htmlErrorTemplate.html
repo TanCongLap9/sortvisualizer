@@ -1,0 +1,37 @@
+<!--
+  Trang web hiện lỗi
+  @param {Error} err
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/5219/5219070.png">
+    <title>Lỗi không mời mà đến</title>
+    <style>
+      pre {
+        white-space: pre-wrap;
+        font-size: 14px;
+      }
+      #error-name {
+        font-weight: bold;
+        color: tomato;
+      }
+      body {
+        background: black
+          url("https://d3mvlb3hz2g78.cloudfront.net/wp-content/uploads/2011/09/thumb_720_450_bug-on-computer-chip_shutterstock_4027501.jpg")
+          top / cover;
+        color: white;
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="error-title">
+      <img src="https://cdn-icons-png.flaticon.com/512/1304/1304112.png" width="48px" height="48px">
+      Trang web đã gặp lỗi rồi!
+    </h1>
+    <p id="error-name">Lỗi <?= err.name ?> (thuộc kiểu <?= err.constructor.name ?>)</p>
+    <pre id="error-stack"><?= err.stack ?></pre>
+  </body>
+</html>

@@ -1,44 +1,15 @@
-# Welcome to Sort Visualizer!
+# Sort Visualizer Fork
 
-https://www.sortvisualizer.com  
-**Sort Visualizer** is a web application designed to better understand sorting algorithms by displaying and visualizing them.
-In the website you can find information and implementations in multiple programming languages of more than 15 sorting algorithms, categorized by their time and space complexity.
+## Demo
+https://script.google.com/macros/s/AKfycbzfPpfza_GXoMKp4KM0M1zemNivJ87NJtGC6OsdtI-spHY68i7AosYX95ES0g7sBaZVuA/exec/customsort
 
-## The sorting algorithms currently available are:
+## Giới thiệu
 
-- Quick Sort
-- Merge Sort
-- Heap Sort
-- Bubble Sort
-- Selection Sort
-- Insertion Sort
-- Gnome Sort
-- Shaker Sort
-- Odd Even Sort
-- Pancake Sort
-- Bitonic Sort
-- Radix Sort
-- Shell Sort
-- Comb Sort
-- Bogo Sort
+**Sort Visualizer** là một web app giúp bạn dễ dàng học về Giải thuật sắp xếp bằng cách mô phỏng trực quan mảng giá trị dưới dạng biểu đồ cột.
 
-## Custom Sort
-
-It's also possible to design and visualize _your own sorting algorithm_, using the [documented APIs](https://www.sortvisualizer.com/docs). Have fun messing around and trying new stuff!
-
-## Running locally
-
-To run the project locally, install Python 3 on your machine, clone the repository, install all the dependencies and run the `app.py` file.
-
-```console
-git clone https://github.com/Myphz/sortvisualizer
-cd sortvisualizer
-pip install -r requirements.txt
-python app.py
-```
-
-## Notes
-
-This website has been made using purely vanilla JS, HTML, CSS and Flask.
-Feedback and contributions are appreciated!
-Consider adding a :star: to this repository to support the project!
+Các tính năng mở rộng so với bản gốc:
+* Chuyển động mượt mà (khi tráo giá trị, chỉnh giá trị của mảng)
+* Pha trộn màu (xảy ra khi một giá trị của mảng được đánh dấu nhiều lần)
+* Tuỳ chỉnh tráo mảng nâng cao
+* Tuỳ chỉnh chủ đề
+* Bước sắp xếp (có thể tua về hoặc tua tới tuỳ thích)

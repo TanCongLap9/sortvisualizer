@@ -1,0 +1,180 @@
+<script>
+
+  const query = (selectors) => document.querySelector(selectors);
+  let oldValue;
+  let anim = true, sortCheck = true, realtime = false, theme = "", timeElapsed = 0,
+    presort = {name: "random", params: null},
+    equalValues = {name: "none", params: null},
+    mouseDownAt = 0, holding = false, shuffleBtnTimer, valuesBeforeSort,
+    min = 1, max = 100, decimal = true;
+  
+  
+  
+  window.onload = () => {
+    editor.oninput();
+    editor.onscroll();
+    (byId("delay").oninput = (e) => {
+      sortDelay = updateInput(e, sortDelay, query("#delay .value"), query("#delay .slider"));
+    })();
+    byId("sorts").before(byId("settings").content.cloneNode(true));
+    query("#sidenav #settings-box").oninput = (e) => {
+      switch (e.target.id) {
+        case "setting-theme":
+          theme = e.target.value;
+          document.body.id = e.target.value + "-theme";
+          break;
+        case "setting-anim":
+          anim = e.target.checked;
+          break;
+        case "setting-sort-check":
+          sortCheck = e.target.checked;
+          break;
+        case "setting-realtime":
+          realtime = e.target.checked;
+          break;
+      }
+    };
+    byId("settings-box").onclick = function (e) {
+      if (e.target !== this.querySelector(".close"))
+        e.stopPropagation();
+    };
+    byId("values-settings").onclick = function (e) {
+      if (e.target === this.querySelector(".close"))
+        this.style.display = "none";
+    };
+    byId("settings-box-return").onkeydown = byId("values-settings").onkeydown = function (e) {
+      if (!e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey && e.key === "Escape")
+        this.style.display = "none";
+    };
+    byId("settings-box-return").onclick =
+      (e) => query("#sidenav #settings-box-return").style.display = "none";
+    byId("values-range").oninput = function (e) {
+      min = Number(this.querySelector("#min").value);
+      max = Number(this.querySelector("#max").value);
+      decimal = this.querySelector("#decimal").checked;
+      fillBox();
+      shuffle();
+    }
+    byId("presort").onclick = byId("equal-values").onclick = byId("presort").oninput = byId("equal-values").oninput = function (e) {
+      const options = Array.from(this.getElementsByClassName("option"));
+      const option = options.find(elem => elem.contains(e.target));
+      if (!option) return;
+  
+      for (const option of options) option.classList.remove("selected");
+      option.classList.add("selected");
+  
+      if (this === byId("presort")) {
+        byId("equal-values").style.visibility = "";
+        presort.name = option.id;
+        presort.params = null;
+        switch (option.id) {
+          case "asc-desc":
+            presort.params = {
+              type: option.querySelector("select").selectedOptions[0].value,
+              segment: Number(option.querySelector(".segment").value)
+            };
+            break;
+          case "adversary":
+            presort.params = {type: option.querySelector("select").selectedOptions[0].value};
+            break;
+          case "random-part":
+            presort.params = {
+              type: option.querySelector(".type").value,
+              amount: Number(option.querySelector(".cardinal").value),
+              unit: option.querySelector(".unit").value
+            };
+            break;
+        }
+      }
+      if (this === byId("equal-values")) {
+        byId("values-range").style.visibility = byId("min").style.visibility = byId("max").style.visibility = byId("decimal").style.visibility = "";
+        equalValues.name = option.id;
+        equalValues.params = null;
+        switch (option.id) {
+          case "each":
+            equalValues.params = {sameValues: Number(option.querySelector(".cardinal").value)};
+            break;
+          case "poly":
+          case "root":
+          case "trig":
+            equalValues.params = {type: option.querySelector("select").selectedOptions[0].value};
+            break;
+          case "perlin":
+            byId("values-range").style.visibility = "hidden";
+            break;
+          case "custom":
+            equalValues.params = {values: option.querySelector("#custom-values").value.split(" ").map(v => Number(v))};
+            byId("values-range").style.visibility = "hidden";
+  
+            if (byId("sort-container-overlay")) byId("sort-container-overlay").remove();
+  
+            if (byId("draw").checked) {
+              let overlay = document.createElement("div");
+              if (option.querySelector("#custom-values").value === "") 
+                option.querySelector("#custom-values").value = Array(elements.length).fill(0).join(" ");
+              Object.assign(overlay, {
+                id: "sort-container-overlay",
+                onmousemove: function (e) {
+                  let percentage = (this.clientHeight - e.offsetY) / this.clientHeight * 100;
+                  let index = Math.floor(e.offsetX / this.clientWidth * elements.length);
+                  Object.assign(byId("position").style, {left: e.clientX + 10 + "px", top: e.clientY + 10 + "px"});
+                  byId("position").innerHTML = Number.isInteger(percentage) ? `${index}, ${percentage}` : `${index}, ${percentage.toFixed(3)}`;
+                  if (!holding) return;
+                  NoQueue.setValue(toElement(index), percentage);
+                  let values = option.querySelector("#custom-values").value.split(" ").map(v => Number(v));
+                  values[index] = percentage;
+                  option.querySelector("#custom-values").value = values.join(" ");
+                },
+                onmousedown: function (e) {
+                  holding = true;
+                  byId("sort-container-overlay").onmousemove(e);
+                }
+              });
+              Object.assign(overlay.style, {
+                height: "78vh",
+                position: "absolute",
+                left: 0,
+                top: "20px",
+                width: "100%"
+              });
+              byId("position").style.display = "block";
+              byId("sort-container").after(overlay);
+            }
+            else {
+              byId("position").style.display = "none";
+            }
+            break;
+        }
+      }
+      useAuxArrays(0);
+      fillBox();
+      shuffle();
+    };
+    byId("shuffle-btn").onmousedown = () => {
+      mouseDownAt = Date.now();
+      holding = true;
+      shuffleBtnTimer = setTimeout(() => {
+        if (holding) query("#values-settings").style.display = "block";
+      }, 500);
+    }
+    byId("shuffle-btn").onmouseleave = () => {
+      holding = false;
+      clearTimeout(shuffleBtnTimer);
+    }
+    byId("shuffle-btn").onmouseup = () => {
+      holding = false;
+      clearTimeout(shuffleBtnTimer);
+      if (Date.now() - mouseDownAt < 500) {useAuxArrays(0); fillBox(); shuffle();}
+    }
+    window.onmouseup = function (e) {
+      holding = false;
+    }
+  };
+  function updateInput(e, oldValue, ...inputs) {
+    const value = Number(e ? e.target.value : inputs[0].value);
+    if (inputs[0].min && value < inputs[0].min || inputs[0].max && value > inputs[0].max) return oldValue;
+    for (const input of inputs) input.value = value;
+    return value;
+  }
+  
+  </script>

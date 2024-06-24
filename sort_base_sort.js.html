@@ -1,0 +1,136 @@
+<script>
+
+  let sortDelay = 100;
+  const SHUFFLE_DELAY = 1000;
+  const NOTE_DURATION = 50;
+  const FREQ_MIN = 200;
+  const FREQ_MAX = 600;
+  const VOLUME = 0.005;
+  var elements = [], auxElements = [];
+  var running = false;
+  let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let masterGain = new GainNode(audioCtx, {gain: VOLUME});
+  
+  window.addEventListener("load", () => { // Initialize global stopwatch (audioCtx.currentTime)
+    let gain = new GainNode(audioCtx, {gain: 0});
+    const interval = setInterval(() => {
+      let osc = new OscillatorNode(audioCtx);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start();
+      byId("elements").focus();
+      if (audioCtx.currentTime !== 0) {
+        console.log("AudioContext has started");
+        clearInterval(interval);
+      }
+      osc.stop();
+    }, 250);
+  });
+  
+  var sortQueue = []; // Steps for the current run
+  
+  function changeCodeTo(name) {
+    if (
+      editor.getValue() === paramCode || SampleCode[SampleCode.current].code || 
+      confirm("Are you sure you want to change the sort algorithm? Your algorithm implementation will be lost!")
+    ) {
+      const {code, entryPoint} = SampleCode[name];
+      editor.value = code;
+      editor.oninput();
+      byId("entry-point").value = entryPoint;
+      SampleCode.current = name;
+      injectSort(code, entryPoint);
+    }
+  }
+  
+  window.addEventListener("load", () => {
+      fillBox();
+      document.getElementById("audio").addEventListener("click", audioButton);
+      updateAudioIcon();
+  
+      NoQueue.sleep(1432).then(() => {
+        if (!running) shuffle();
+      });
+  
+      (byId("elements").oninput = (e) => {
+        running = false;
+        updateInput(e, 0, document.querySelector("#elements .value"), byId("slider"));
+        useAuxArrays(0);
+        byId("step").style.display = "none";
+        fillBox();
+        activateButtons();
+      })();
+  
+      let menu = byId("menu-btns");
+      if (!menu) return;
+      for (let i = 0; i < menu.children.length; i++) {
+        menu.children[i].addEventListener("click", () => {
+          loadCode(menu.children[i]);
+        });
+      }
+      loadCode(menu.children[0]);
+  });
+  
+  
+  
+  
+  
+  async function swapOld(i, j, delay) {
+    if (typeof delay === "undefined") delay = SORT_DELAY / elements.length;
+    let freq = Math.floor(( (getValue(i) + getValue(j)) / 200) * (FREQ_MAX - FREQ_MIN) + FREQ_MIN);
+    playNote(freq, NOTE_DURATION);
+    if (!running) return;
+    NoQueue.changeColor(i, RED);
+    [elements[i].style.left, elements[j].style.left] = [elements[j].style.left, elements[i].style.left];
+    [elements[i], elements[j]] = [elements[j], elements[i]];
+    await NoQueue.sleep(delay);
+    NoQueue.resetColor(j);
+  }
+  function isSorted(elementsArray = elements, decreasing = false) {
+    return elementsArray.every((elem, i) => !i || (
+      !decreasing ?
+        getValue(elementsArray[i-1]) <= getValue(elementsArray[i]) :
+        getValue(elementsArray[i-1]) >= getValue(elementsArray[i])
+    ));
+  }
+  function disableButtons() {
+    btn = byId("run-btn");
+    btn.lastElementChild.innerHTML = 'stop'
+    btn.onclick = () => {
+      if (realtime) {
+        running = false;
+        NoQueue.setValue(elements, valuesBeforeSort);
+      }
+      else {running = false; autoRunning = false;}
+    }
+    btn.disabled = false;
+    document.getElementById("shuffle-btn").disabled = true;
+  }
+  function activateButtons() {
+    btn = byId("run-btn");
+    btn.lastElementChild.innerHTML = 'play_arrow'
+    btn.onclick = run;
+    btn.disabled = false;
+    document.getElementById("shuffle-btn").disabled = false;
+  }
+  function loadCode(btn) {
+    let lang = btn.firstElementChild.title;
+    let menu = byId("menu-btns");
+    for (let i = 0; i < menu.children.length; i++)
+      menu.children[i].classList.remove("menu-btns-activated");
+    btn.classList.add("menu-btns-activated");
+    let code = byId("code");
+    code.innerHTML = codes[lang];
+    code.className = '';
+    code.classList.add(lang.toLowerCase())
+    hljs.highlightAll();
+  }
+  function audioButton() {
+    audio = byId("audio").firstElementChild.innerHTML === "volume_off" | 0;
+    updateAudioIcon();
+  }
+  function updateAudioIcon() {
+    let icons = ["volume_off", "volume_up"];
+    byId("audio").firstChild.innerHTML = icons[audio | 0];
+  }
+  
+  </script>

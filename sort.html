@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<!-- Modded Sort Visualizer with extended features and smooth transition
+     Phiên bản đã chỉnh sửa của Sort Visualizer với các tính năng mở rộng và hiệu ứng chuyển tiếp mượt mà -->
+
+<head>
+  <? const load = (file) => HtmlLib.load(HtmlService, file); ?>
+  <title>Sort Visualizer - Custom Sort</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <?!= load("sort_highlightjs.css") ?>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link rel="icon" href="https://sortvisualizer.com/static/images/favicon.ico">
+
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Jura:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oxygen:wght@300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Electrolize&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <noscript>JavaScript is required for this website. Please allow JavaScript and refresh the page.</noscript>
+  <script>
+    var paramCode
+    try {
+      paramCode = atob("<?= code ?>");
+    }
+    catch (e) {
+      
+    }
+  </script>
+  <script>
+
+const NoQueue = {
+<? for (let i of Object.getOwnPropertyNames(NoQueue)) { ?>
+<?!= i ?>: <?!= NoQueue[i] ?>,
+<? } ?>
+<? for (let sym of Object.getOwnPropertySymbols(NoQueue)) { 
+let symName = sym.toString().match(/\((.*)\)/)[1]; ?>
+[<?!= symName ?>]: <?= NoQueue[sym] ?>,
+<? } ?>
+};
+  </script>
+  <script>
+<? for (let obj of [SortVisualizerInit, SortVisualizerColor, SortVisualizerWrite, SortVisualizerRead, SortVisualizerStep, SortVisualizerMisc, SortVisualizerCode, SortVisualizerSound, SortVisualizerUtils])
+for (let i in obj)
+if (typeof obj[i] === "function" && i === "onload") { ?>
+window.addEventListener("load", <?!= obj[i] ?>);
+<?  }
+else if (typeof obj[i] === "function" && obj[i].toString()[0] !== "(") { // Not an arrow function ?>
+<?!= obj[i] ?>;
+<?  }
+else if (typeof obj[i] === "function" && obj[i].toString()[0] === "(") { // Arrow function, which will be immediately executed for value ?>
+const <?!= i ?> = (<?!= obj[i] ?>)();
+<? }
+else if (typeof obj[i] === "string") { ?>
+const <?!= i ?> = <?= obj[i] ?>;
+<?  } ?>
+  </script>
+  <script>
+    let audio = false | 0;
+  </script>
+</head>
+<body>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <?!= load("sort_base.js") ?>
+  <?!= load("sort_sidebar.html") ?>
+  <?!= load("sort_base.css") ?>
+  <?!= load("sort_base_sort.css") ?>
+  <?!= load("sort_seti.css") ?>
+  <?!= load("sort_mystyles.css") ?>
+  <?!= load("sort_base_sort.js") ?>
+  <?!= load("sort_customsort.js") ?>
+  <?!= load("sort_myscript.js") ?>
+  <template id="settings">
+    <form>
+      <a onclick='byId("settings-box-return").style.display = "block"; byId("settings-box-return").focus();' href="javascript:void(0)" class="sidenav-title"><i class="material-icons icon">tune</i> Settings</a>
+      <div id="settings-box-return" style="display: none;" tabindex="0">
+        <div id="settings-box" class="sidenav-title">
+          <a class="close" href="javascript:void(0)"><i class="material-icons icon">close</i></a>
+          <label><i class="material-icons icon">color_lens</i> Theme:
+            <select id="setting-theme" class="setting-select">
+              <option value="">Default</option>
+              <option value="classic">Classic</option>
+            </select>
+          </label>
+          <br>
+          <label><i class="material-icons icon">animation</i> Smooth transition:
+            <input id="setting-anim" type="checkbox" checked>
+          </label>
+          <br>
+          <label><i class="material-icons icon">signal_cellular_alt</i> Check for sorted array on finish:
+            <input id="setting-sort-check" type="checkbox" checked>
+          </label>
+          <br>
+          <label><i class="material-icons icon">access_time</i> Realtime code execution:
+            <input id="setting-realtime" type="checkbox">
+          </label>
+        </div>
+      </div>
+      <div id="sep" class="no-remove"></div>
+    </form>
+  </template>
+  <div class="topnav">
+    <button class="sidenav-btn topnav-element ripple open" id="sidenav-menu"><i class="material-icons icon">menu</i></button>
+    <a href="https://sortvisualizer.com" class="topnav-element">SORT VISUALIZER</a>
+    <button id="audio" class="ripple sidenav-btn"><i class="material-icons icon">volume_up</i></button>
+  </div>
+  
+  <div id="position" style="display: none;">25</div>
+
+  <div>
+    <div id="box">
+      <div class="title" data-aos="fade-down">Custom Sort</div>
+      <div id="sort-info" style="float: left; white-space: nowrap;">
+        <span>Last sort at: <span id="sort-datetime">0</span></span><br>
+        <span>Actual sort time: <span id="sort-time">0</span>ms</span><br>
+        <span>Comparisons: <span id="sort-comps">0</span></span><br>
+        <span>Swaps: <span id="sort-swaps">0</span></span><br>
+        <span>Written to main array: <span id="sort-write-main">0</span></span><br>
+        <span id="sort-write-aux"></span>
+      </div>
+      
+      <div style="float: right; white-space: nowrap;">
+        <button class="sort-btns" id="shuffle-btn"><i class="material-icons">shuffle</i></button>
+        <div id="values-settings" tabindex="0" style="display: none;">
+          <a class="close" href="javascript:void(0)"><i class="material-icons icon">close</i></a>
+          <span>Values range</span>
+          <div id="values-range">
+            <div class="option">
+              <span>Minimum:</span>
+              <input type="number" id="min" value="1">
+            </div>
+            <div class="option">
+              <span>Maximum:</span>
+              <input type="number" id="max" value="100">
+            </div>
+            <div class="option">
+              <span>Allow decimal values:</span>
+              <input type="checkbox" id="decimal" checked>
+            </div>
+          </div>
+          <span>Pre-sort</span>
+          <div id="presort">
+            <div id="none" class="option">None</div>
+            <div id="random" class="option selected">Random</div>
+            <div id="noisy" class="option">Noisy</div>
+            <div id="asc-desc" class="option">
+              <select>
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+                <option value="asc-desc">Pyramid</option>
+                <option value="desc-asc">Inverted pyramid</option>
+              </select>
+              <input type="number" value="1" min="1" class="segment">
+              segment(s)
+            </div>
+            <div id="random-part" class="option">
+              Random for
+              <select class="type">
+                <option value="first">first</option>
+                <option value="last">last</option>
+              </select>
+              <input type="number" class="cardinal" value="10" min="0" max="100">
+              <select class="unit">
+                <option value="percentage">%</option>
+                <option value="element">element(s)</option>
+              </select>
+            </div>  
+            <div id="adversary" class="option">
+              <select>
+                <option value="quicksort">Quicksort</option>
+                <option value="grailsort">Grailsort</option>
+              </select>
+              adversary
+            </div>
+          </div>
+          <span>Values generation</span>
+          <div id="equal-values">
+            <div id="none" class="option selected">Unique all</div>
+            <div id="each" class="option"><input type="number" class="cardinal" value="2"> same for each value</div>
+            <div id="nearly-all" class="option">Nearly same all</div>
+            <div id="all" class="option">Same all</div>
+            <div id="random-values" class="option">Random</div>
+            <div id="poly" class="option">
+              <select>
+                <option value="quadratic">Quadratic</option>
+                <option value="cubic">Cubic</option>
+                <option value="quaric">Quaric</option>
+                <option value="quintic">Quintic</option>
+              </select>
+            </div>
+            <div id="root" class="option">
+              <select>
+                <option value="square">Square</option>
+                <option value="cube">Cube</option>
+                <option value="forth">Forth</option>
+                <option value="fifth">Fifth</option>
+              </select>
+              root
+            </div>
+            <div id="trig" class="option">
+              <select>
+                <option value="sin">Sine</option>
+                <option value="cos">Cosine</option>
+                <option value="tan">Tangent</option>
+                <option value="csc">Cosecant</option>
+                <option value="sec">Secant</option>
+                <option value="cot">Cotangent</option>
+              </select>
+            </div>
+            <div id="perlin" class="option">Perlin noise</div>
+            <div id="custom" class="option"><input type="text" id="custom-values" placeholder="Custom (space-separated values)" style="width: calc(100% - 200px);"><label><input type="checkbox" id="draw">Draw on-screen</label></div> 
+          </div>
+        </div>
+        <button class="sort-btns" id="run-btn" onclick="run()" disabled><i class="material-icons">play_arrow</i></button>
+        <div id="elements" class="slider-container">
+          <div id="elements-text" class="text">
+            Elements: <input type="number" id="slider-span" min="1" max="2000" class="value" value="100"><br>
+          </div>
+          <input type="range" value="100" min="5" max="2000" step="5" name="item-num" id="slider" class="value">
+        </div>
+      </div>
+      <div style="float: right; clear: right; white-space: nowrap;">
+        <div id="delay" class="slider-container">
+          <div class="text">
+            Speed: <input type="number" min="1" max="2000" value="100" class="value">ms<br>
+          </div>
+          <input type="range" value="100" min="10" max="2000" step="10" name="item-num" class="slider">
+        </div>
+      </div>
+      <div style="float: right; clear: right; white-space: nowrap;">
+        <div id="step" class="slider-container" style="display: none;">
+          <div class="text">
+            Step: <input type="number" value="0" min="0" max="0" class="value">/<span class="max">0</span><br>
+          </div>
+          <input type="range" value="100" min="0" max="0" name="item-num" class="slider">
+        </div>
+      </div>
+      <div style="clear: both; padding-top: 20px; position: relative;" id="arrays">
+        <div id="sort-container"></div>
+      </div>
+    </div>
+  </div>
+  <div id="sort-cover">
+    <div class="info-parent">
+      <div class="sort-description">
+        <div style="font-family: 'Jura', Courier, monospace; font-size: 35px;">INSTRUCTIONS</div>              
+        <p>
+          Implement and visualize your sort algorithm using the JavaScript programming language.
+        </p>
+        <p>
+          Write an <i>asyncronous</i> function that takes an <code>Array</code> of <code>DOM element objects</code> as a parameter and type the entry point of the algorithm in the appropriate text field below.
+        </p>
+        <p>
+          Sort the elements in-place, in ascending order using the <a href="https://sortvisualizer.com/docs" target="_blank">documented APIs</a> for the visualization.
+        </p>
+      </div>
+    </div>
+    <div class="menu-box">
+      <div style="font-family: 'Jura', Courier, monospace; font-size: 35px;">IMPLEMENTATIONS</div>
+      <div id="code-test">
+        <pre id="code-display-wrapper"><code id="code-display" class="language-javascript"></code></pre>
+      </div>
+      <div style="margin-top: 15px; width: 90%;">
+        <span id="sort-entry-point-text">SORT ENTRY POINT:</span>
+        <input type="text" id="entry-point" name="entry-point" value="<?= entry || 'selectionSort' ?>" spellcheck="false">
+        <button class="btn-code" id="btn-code" type="button" onclick="location.href='#box';">
+          <span class="btn-text">TEST</span>
+          <span class="btn-icon"><i class="material-icons">sync</i></span>
+        </button>
+        <br><br>
+        <div id="error-title">Exception occurred <i class="material-icons">report_problem</i></div>
+        <div id="error"><pre><code class="language-javascript"></code></pre></div>
+      </div>
+    </div>
+  </div>
+  <?!= load("sort_footer.html") ?>
+</body>
+
+</html>
